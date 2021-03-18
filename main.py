@@ -1,36 +1,53 @@
 import tcod
+from src.engine.actions import EscapeAction, MovementAction
+from src.engine.inputHandlers import EventHandler
 
-sheetColumns = 32
-sheetRows = 8
-tilePath = r"C:\Users\Owner\PycharmProjects\tcodTutorial\assets\dejavu10x10_gs_tc.png"
+WIDTH = 80
+HEIGHT = 50
+SHEETCOLS = 32
+SHEETROWS = 8
+TILEPATH = r"C:\Users\Owner\PycharmProjects\tcodTutorial\assets\dejavu10x10_gs_tc.png"
 
 
 def main() -> None:
-    screenWidth = 80
-    screenHeight = 50
+    playerX = int(WIDTH / 2)
+    playerY = int(HEIGHT / 2)
 
     tileset = tcod.tileset.load_tilesheet(
-        tilePath,
-        sheetColumns,
-        sheetRows,
+        TILEPATH,
+        SHEETCOLS,
+        SHEETROWS,
         tcod.tileset.CHARMAP_TCOD
     )
 
+    eventHandler = EventHandler()
+
     with tcod.context.new_terminal(
-            screenWidth,
-            screenHeight,
+            WIDTH,
+            HEIGHT,
             tileset=tileset,
             title="Yet Another Roguelike Tutorial",
             vsync=True,
     ) as context:
-        rootConsole = tcod.Console(screenWidth, screenHeight, order="F")
+        rootConsole = tcod.Console(WIDTH, HEIGHT, order="F")
         while True:
-            rootConsole.print(x=int(screenWidth / 2), y=int(screenHeight / 2), string="@")
+            rootConsole.print(x=playerX, y=playerY, string="@")
 
             context.present(rootConsole)
 
+            rootConsole.clear()
+
             for event in tcod.event.wait():
-                if event.type == "QUIT":
+                action = eventHandler.dispatch(event)
+
+                if action is None:
+                    continue
+
+                if isinstance(action, MovementAction):
+                    playerX += action.dx
+                    playerY += action.dy
+
+                elif isinstance(action, EscapeAction):
                     raise SystemExit()
 
 
