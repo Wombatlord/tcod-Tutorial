@@ -1,6 +1,7 @@
 import tcod
-from src.engine.actions import EscapeAction, MovementAction
+from src.engine.engine import Engine
 from src.engine.inputHandlers import EventHandler
+from src.gameState.entities import Entity
 
 WIDTH = 80
 HEIGHT = 50
@@ -10,17 +11,19 @@ TILEPATH = r"C:\Users\Owner\PycharmProjects\tcodTutorial\assets\dejavu10x10_gs_t
 
 
 def main() -> None:
-    playerX = int(WIDTH / 2)
-    playerY = int(HEIGHT / 2)
-
     tileset = tcod.tileset.load_tilesheet(
         TILEPATH,
         SHEETCOLS,
         SHEETROWS,
         tcod.tileset.CHARMAP_TCOD
     )
-
     eventHandler = EventHandler()
+
+    player = Entity(int(WIDTH / 2), int(HEIGHT / 2), '@', (255, 255, 255))
+    npc = Entity(int((WIDTH / 2) - 5), int((HEIGHT / 2) - 5), '@', (255, 0, 255))
+    entities = {npc, player}
+
+    engine = Engine(entities=entities, eventHandler=eventHandler, player=player)
 
     with tcod.context.new_terminal(
             WIDTH,
@@ -31,24 +34,11 @@ def main() -> None:
     ) as context:
         rootConsole = tcod.Console(WIDTH, HEIGHT, order="F")
         while True:
-            rootConsole.print(x=playerX, y=playerY, string="@")
+            engine.render(console=rootConsole, context=context)
 
-            context.present(rootConsole)
+            events = tcod.event.wait()
 
-            rootConsole.clear()
-
-            for event in tcod.event.wait():
-                action = eventHandler.dispatch(event)
-
-                if action is None:
-                    continue
-
-                if isinstance(action, MovementAction):
-                    playerX += action.dx
-                    playerY += action.dy
-
-                elif isinstance(action, EscapeAction):
-                    raise SystemExit()
+            engine.handleEvents(events)
 
 
 if __name__ == "__main__":
