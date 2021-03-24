@@ -3,7 +3,6 @@ from typing import Set, Iterable, Any
 from tcod.context import Context
 from tcod.console import Console
 
-from src.engine.actions import EscapeAction, MovementAction
 from src.engine.inputHandlers import EventHandler
 from src.gameState.entities import Entity
 from src.map.gameMap import GameMap

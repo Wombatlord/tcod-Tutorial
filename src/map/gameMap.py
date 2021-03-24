@@ -7,9 +7,7 @@ from src.map import tileTypes
 class GameMap:
     def __init__(self, width: int, height: int):
         self.width, self.height = width, height
-        self.tiles = np.full((width, height), fill_value=tileTypes.floor, order='F')
-
-        self.tiles[30:33, 22] = tileTypes.wall
+        self.tiles = np.full((width, height), fill_value=tileTypes.wall, order='F')
 
     def inBounds(self, x: int, y: int) -> bool:
         """Return True if x and y are within the bounds of this map"""
