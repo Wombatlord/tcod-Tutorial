@@ -34,7 +34,7 @@ def newTile(
 
 
 # SHROUD represents unexplored, unseen tiles.
-SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=tileDt)
+SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphicDt)
 
 floor = newTile(
     walkable=True,
