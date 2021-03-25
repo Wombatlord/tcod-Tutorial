@@ -4,13 +4,21 @@ from src.gameState.entities import Entity
 from src.engine.inputHandlers import EventHandler
 from src.map.procgen import generateDungeon
 
+# Screen Constants
 WIDTH = 80
 HEIGHT = 50
 MAP_WIDTH = 80
 MAP_HEIGHT = 45
+
+# Tileset constants.
 SHEET_COLS = 32
 SHEET_ROWS = 8
 TILE_PATH = r"C:\Users\Owner\PycharmProjects\tcodTutorial\assets\dejavu10x10_gs_tc.png"
+
+# Room constants.
+MAX_ROOM_SIZE = 10
+MIN_ROOM_SIZE = 6
+MAX_ROOMS = 30
 
 
 def main() -> None:
@@ -26,7 +34,14 @@ def main() -> None:
     npc = Entity(int((WIDTH / 2) - 5), int(HEIGHT / 2), '@', (255, 0, 255))
     entities = {npc, player}
 
-    gameMap = generateDungeon(MAP_WIDTH, MAP_HEIGHT)
+    gameMap = generateDungeon(
+        maxRooms=MAX_ROOMS,
+        minRoomSize=MIN_ROOM_SIZE,
+        maxRoomSize=MAX_ROOM_SIZE,
+        mapWidth=MAP_WIDTH,
+        mapHeight=MAP_HEIGHT,
+        player=player
+    )
 
     engine = Engine(entities=entities, eventHandler=eventHandler, gameMap=gameMap, player=player)
 
