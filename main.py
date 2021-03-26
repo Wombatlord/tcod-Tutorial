@@ -19,6 +19,7 @@ TILE_PATH = r"C:\Users\Owner\PycharmProjects\tcodTutorial\assets\dejavu10x10_gs_
 MAX_ROOM_SIZE = 10
 MIN_ROOM_SIZE = 6
 MAX_ROOMS = 30
+MAX_MONSTERS_PER_ROOM = 2
 
 
 def main() -> None:
@@ -38,6 +39,7 @@ def main() -> None:
         maxRoomSize=MAX_ROOM_SIZE,
         mapWidth=MAP_WIDTH,
         mapHeight=MAP_HEIGHT,
+        MAX_MONSTERS_PER_ROOM=MAX_MONSTERS_PER_ROOM,
         player=player
     )
 

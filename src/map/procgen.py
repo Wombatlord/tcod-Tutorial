@@ -31,11 +31,25 @@ class RectangularRoom:
     def intersects(self, other: RectangularRoom) -> bool:
         """Return True if this room overlaps with another RectangularRoom."""
         return (
-            self.x1 <= other.x2
-            and self.x2 >= other.x1
-            and self.y1 <= other.y2
-            and self.y2 >= other.y1
+                self.x1 <= other.x2
+                and self.x2 >= other.x1
+                and self.y1 <= other.y2
+                and self.y2 >= other.y1
         )
+
+
+def placeEntities(room: RectangularRoom, dungeon: GameMap, maxMonsters: int) -> None:
+    numberOfMonsters = random.randint(0, maxMonsters)
+
+    for i in range(numberOfMonsters):
+        x = random.randint(room.x1 + 1, room.x2 - 1)
+        y = random.randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            if random.random() < 0.8:
+                pass  # TODO: place Orc
+            else:
+                pass  # TODO: place Troll
 
 
 def tunnelBetween(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
@@ -57,12 +71,13 @@ def tunnelBetween(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tupl
 
 
 def generateDungeon(
-    maxRooms: int,
-    minRoomSize: int,
-    maxRoomSize: int,
-    mapWidth: int,
-    mapHeight: int,
-    player: Entity,
+        maxRooms: int,
+        minRoomSize: int,
+        maxRoomSize: int,
+        mapWidth: int,
+        mapHeight: int,
+        maxMonstersPerRoom: int,
+        player: Entity,
 ) -> GameMap:
     """Generate a new dungeon map."""
     dungeon = GameMap(mapWidth, mapHeight, entities=[player])
@@ -94,6 +109,8 @@ def generateDungeon(
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnelBetween(rooms[-1].centre, newRoom.centre):
                 dungeon.tiles[x, y] = tileTypes.floor
+
+        placeEntities(newRoom, dungeon, maxMonstersPerRoom)
 
         # Finally, append the new room to the list.
         rooms.append(newRoom)
