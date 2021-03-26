@@ -1,7 +1,7 @@
 from typing import Optional
 import tcod.event
 
-from src.engine.actions import Action, EscapeAction, MovementAction
+from src.engine.actions import Action, EscapeAction, BumpAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
@@ -14,13 +14,13 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         key = event.sym
 
         if key == tcod.event.K_KP_8:
-            action = MovementAction(dx=0, dy=-1)
+            action = BumpAction(dx=0, dy=-1)
         elif key == tcod.event.K_KP_2:
-            action = MovementAction(dx=0, dy=1)
+            action = BumpAction(dx=0, dy=1)
         elif key == tcod.event.K_KP_4:
-            action = MovementAction(dx=-1, dy=0)
+            action = BumpAction(dx=-1, dy=0)
         elif key == tcod.event.K_KP_6:
-            action = MovementAction(dx=1, dy=0)
+            action = BumpAction(dx=1, dy=0)
 
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction()

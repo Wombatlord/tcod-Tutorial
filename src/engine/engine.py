@@ -16,6 +16,10 @@ class Engine:
         self.player = player
         self.updateFOV()
 
+    def handleEnemyTurns(self) -> None:
+        for entity in self.gameMap.entities - {self.player}:
+            print(f"The {entity.name} prepares spaghet")
+
     def handleEvents(self, events: Iterable[Any]) -> None:
         for event in events:
             action = self.eventHandler.dispatch(event)
@@ -24,7 +28,7 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
-
+            self.handleEnemyTurns()
             self.updateFOV()  # Update FOV before player's next action.
 
     def updateFOV(self):
