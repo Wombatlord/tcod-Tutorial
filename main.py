@@ -1,6 +1,7 @@
+import copy
 import tcod
 from src.engine.engine import Engine
-from src.entities.entities import Entity
+from src.entities import entityFactories
 from src.engine.inputHandlers import EventHandler
 from src.map.procgen import generateDungeon
 
@@ -31,7 +32,7 @@ def main() -> None:
     )
 
     eventHandler = EventHandler()
-    player = Entity(int(WIDTH / 2), int(HEIGHT / 2), '@', (255, 255, 255))
+    player = copy.deepcopy(entityFactories.player)
 
     gameMap = generateDungeon(
         maxRooms=MAX_ROOMS,
@@ -39,7 +40,7 @@ def main() -> None:
         maxRoomSize=MAX_ROOM_SIZE,
         mapWidth=MAP_WIDTH,
         mapHeight=MAP_HEIGHT,
-        MAX_MONSTERS_PER_ROOM=MAX_MONSTERS_PER_ROOM,
+        maxMonstersPerRoom=MAX_MONSTERS_PER_ROOM,
         player=player
     )
 
