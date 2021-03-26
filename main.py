@@ -1,6 +1,6 @@
 import tcod
 from src.engine.engine import Engine
-from src.gameState.entities import Entity
+from src.entities.entities import Entity
 from src.engine.inputHandlers import EventHandler
 from src.map.procgen import generateDungeon
 
@@ -28,11 +28,9 @@ def main() -> None:
         SHEET_ROWS,
         tcod.tileset.CHARMAP_TCOD
     )
-    eventHandler = EventHandler()
 
+    eventHandler = EventHandler()
     player = Entity(int(WIDTH / 2), int(HEIGHT / 2), '@', (255, 255, 255))
-    npc = Entity(int((WIDTH / 2) - 5), int(HEIGHT / 2), '@', (255, 0, 255))
-    entities = {npc, player}
 
     gameMap = generateDungeon(
         maxRooms=MAX_ROOMS,
@@ -43,7 +41,7 @@ def main() -> None:
         player=player
     )
 
-    engine = Engine(entities=entities, eventHandler=eventHandler, gameMap=gameMap, player=player)
+    engine = Engine(eventHandler=eventHandler, gameMap=gameMap, player=player)
 
     with tcod.context.new_terminal(
             WIDTH,

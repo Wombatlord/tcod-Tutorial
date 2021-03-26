@@ -1,17 +1,16 @@
-from typing import Set, Iterable, Any
+from typing import Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
 from src.engine.inputHandlers import EventHandler
-from src.gameState.entities import Entity
+from src.entities.entities import Entity
 from src.map.gameMap import GameMap
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], eventHandler: EventHandler, gameMap: GameMap, player: Entity):
-        self.entities = entities
+    def __init__(self, eventHandler: EventHandler, gameMap: GameMap, player: Entity):
         self.eventHandler = eventHandler
         self.gameMap = gameMap
         self.player = player
@@ -41,10 +40,5 @@ class Engine:
 
     def render(self, console: Console, context: Context) -> None:
         self.gameMap.render(console)
-        for entity in self.entities:
-            # Only print entities in FOV.
-            if self.gameMap.visible[entity.x, entity.y]:
-                console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.colour)
-
         context.present(console)
         console.clear()

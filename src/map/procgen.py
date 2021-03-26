@@ -6,7 +6,7 @@ from src.map.gameMap import GameMap
 from src.map import tileTypes
 
 if TYPE_CHECKING:
-    from src.gameState.entities import Entity
+    from src.entities.entities import Entity
 
 
 class RectangularRoom:
@@ -65,7 +65,7 @@ def generateDungeon(
     player: Entity,
 ) -> GameMap:
     """Generate a new dungeon map."""
-    dungeon = GameMap(mapWidth, mapHeight)
+    dungeon = GameMap(mapWidth, mapHeight, entities=[player])
 
     rooms: List[RectangularRoom] = []
 

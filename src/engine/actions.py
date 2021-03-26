@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.engine.engine import Engine
-    from src.gameState.entities import Entity
+    from src.entities.entities import Entity
 
 
 class Action:
