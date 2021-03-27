@@ -7,7 +7,7 @@ from src.map import tileTypes
 
 if TYPE_CHECKING:
     from src.engine.engine import Engine
-    from src.entities.entities import Entity
+    from src.entities.entity import Entity
 
 
 class GameMap:

@@ -1,4 +1,4 @@
-from src.entities.entities import Entity
+from src.entities.entity import Entity
 
 player = Entity(char="@", colour=(255, 255, 255), name="Player", blocksMovement=True)
 
