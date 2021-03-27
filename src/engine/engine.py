@@ -20,8 +20,9 @@ class Engine:
         self.player = player
 
     def handleEnemyTurns(self) -> None:
-        for entity in self.gameMap.entities - {self.player}:
-            print(f"The {entity.name} prepares spaghet")
+        for entity in set(self.gameMap.actors) - {self.player}:
+            if entity.ai:
+                entity.ai.perform()
 
     def updateFOV(self):
         """Recompute the visible area based on the players point of view."""
