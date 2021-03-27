@@ -6,24 +6,34 @@ from tcod.console import Console
 from src.map import tileTypes
 
 if TYPE_CHECKING:
+    from src.engine.engine import Engine
     from src.entities.entities import Entity
 
 
 class GameMap:
-    def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()):
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value=tileTypes.wall, order='F')
 
         # Tiles currently in view.
-        self.visible = np.full((width, height), fill_value=False, order="F")
+        self.visible = np.full(
+            (width, height), fill_value=False, order="F"
+        )
 
         # Tiles the player has seen before.
-        self.explored = np.full((width, height), fill_value=False, order="F")
+        self.explored = np.full(
+            (width, height), fill_value=False, order="F"
+        )
 
     def getBlockingEntityAtLocation(self, locationX: int, locationY: int) -> Optional[Entity]:
         for entity in self.entities:
-            if entity.blocksMovement and entity.x == locationX and entity.y == locationY:
+            if (
+                    entity.blocksMovement
+                    and entity.x == locationX
+                    and entity.y == locationY
+            ):
                 return entity
 
         return None
@@ -40,7 +50,7 @@ class GameMap:
         If it isn't, but is in the "explored" array, draw it with "dark" colours.
         Else, default is "SHROUD". This draws tiles not in either array as black.
         """
-        console.tiles_rgb[0:self.width, 0:self.height] = np.select(
+        console.tiles_rgb[0: self.width, 0: self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tileTypes.SHROUD

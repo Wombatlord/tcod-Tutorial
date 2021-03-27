@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.engine.engine import Engine
@@ -8,13 +8,22 @@ if TYPE_CHECKING:
 
 
 class Action:
+    def __init__(self, entity: Entity) -> None:
+        super().__init__()
+        self.entity = entity
+
+    @property
+    def engine(self) -> Engine:
+        """Return the engine this action belongs to."""
+        return self.entity.gameMap.engine
+
     def perform(self, engine: Engine, entity: Entity) -> None:
         """
         Perform this action with the objects needed to determine its scope.
 
-        'engine' is the scope this action is being performed in.
+        'self.engine' is the scope this action is being performed in.
 
-        'entity' is the object performing the action.
+        'self.entity' is the object performing the action.
 
         This method must be overridden by Action Subclasses
         """
@@ -22,26 +31,34 @@ class Action:
 
 
 class EscapeAction(Action):
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def perform(self) -> None:
         raise SystemExit()
 
 
 class ActionWithDirection(Action):
-    def __init__(self, dx: int, dy: int):
-        super().__init__()
+    def __init__(self, entity: Entity, dx: int, dy: int):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
 
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    @property
+    def destXY(self) -> Tuple[int, int]:
+        """Returns the actions destination."""
+        return self.entity.x + self.dx, self.entity.y + self.dy
+
+    @property
+    def blockingEntity(self) -> Optional[Entity]:
+        """Return the blocking entity at this actions destination."""
+        return self.engine.gameMap.getBlockingEntityAtLocation(*self.destXY)
+
+    def perform(self) -> None:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        destX = entity.x + self.dx
-        destY = entity.y + self.dy
-        target = engine.gameMap.getBlockingEntityAtLocation(destX, destY)
+    def perform(self) -> None:
+        target = self.blockingEntity
         if not target:
             return  # No entity to attack.
 
@@ -49,29 +66,25 @@ class MeleeAction(ActionWithDirection):
 
 
 class MovementAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        destX = entity.x + self.dx
-        destY = entity.y + self.dy
+    def perform(self) -> None:
+        destX, destY = self.destXY
 
-        if not engine.gameMap.inBounds(destX, destY):
+        if not self.engine.gameMap.inBounds(destX, destY):
             return  # Destination is out of bounds.
 
-        if not engine.gameMap.tiles['walkable'][destX, destY]:
+        if not self.engine.gameMap.tiles['walkable'][destX, destY]:
             return  # Destination blocked by a tile.
 
-        if engine.gameMap.getBlockingEntityAtLocation(destX, destY):
+        if self.engine.gameMap.getBlockingEntityAtLocation(destX, destY):
             return  # Destination blocked by an entity.
 
-        entity.move(self.dx, self.dy)
+        self.entity.move(self.dx, self.dy)
 
 
 class BumpAction(ActionWithDirection):
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        destX = entity.x + self.dx
-        destY = entity.y + self.dy
-
-        if engine.gameMap.getBlockingEntityAtLocation(destX, destY):
-            return MeleeAction(self.dx, self.dy).perform(engine, entity)
+    def perform(self) -> None:
+        if self.blockingEntity:
+            return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
-            return MovementAction(self.dx, self.dy).perform(engine, entity)
+            return MovementAction(self.entity, self.dx, self.dy).perform()
