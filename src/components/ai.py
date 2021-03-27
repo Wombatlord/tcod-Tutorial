@@ -1,15 +1,20 @@
 from __future__ import annotations
 
-from typing import Tuple, List
+from typing import Tuple, List, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 import tcod
 
-from src.engine.actions import Action
+from src.engine.actions import Action, MeleeAction, MovementAction, WaitAction
 from src.components.baseComponent import BaseComponent
+
+if TYPE_CHECKING:
+    from src.entities.entity import Actor
 
 
 class BaseAI(Action, BaseComponent):
+    entity: Actor
+
     def perform(self) -> None:
         raise NotImplementedError()
 
@@ -41,3 +46,29 @@ class BaseAI(Action, BaseComponent):
 
         # Convert from List[List[int]] to List[Tuple[int, int]].
         return [(index[0], index[1]) for index in path]
+
+
+class HostileEnemy(BaseAI):
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+        self.path: List[Tuple[int, int]] = []
+
+        def perform(self) -> None:
+            target = self.engine.player
+            dx = target.x - self.entity.x
+            dy = target.y - self.entity.y
+            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+            if self.engine.gameMap.visible[self.entity.x, self.entity.y]:
+                if distance <= 1:
+                    return MeleeAction(self.entity, dx, dy).perform()
+
+                self.path = self.getPathTo(target.x, target.y)
+
+            if self.path:
+                destX, destY = self.path.pop(0)
+                return MovementAction(
+                    self.entity, destX - self.entity.x, destY - self.entity.y,
+                ).perform()
+
+            return WaitAction(self.entity).perform
