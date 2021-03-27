@@ -1,8 +1,10 @@
 from __future__ import annotations
-from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 import copy
 
 if TYPE_CHECKING:
+    from src.components.ai import BaseAI
+    from src.components.fighter import Fighter
     from src.map.gameMap import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -58,3 +60,35 @@ class Entity:
     def move(self, dx: int, dy: int) -> None:
         self.x += dx
         self.y += dy
+
+
+class Actor(Entity):
+    def __init__(
+            self,
+            *,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            colour: Tuple[int, int, int] = (255, 255, 255),
+            name: str = "<Unnamed>",
+            aiCLS: Type[BaseAI],
+            fighter: Fighter
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            colour=colour,
+            name=name,
+            blocksMovement=True
+        )
+
+        self.ai: Optional[BaseAI] = aiCLS(self)
+
+        self.fighter = fighter
+        self.fighter.entity = self
+
+    @property
+    def isAlive(self) -> bool:
+        """Returns True as long as thie actor can perform actions."""
+        return bool(self.ai)
