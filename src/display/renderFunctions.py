@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src.data import colours
+from src.display import colours
 
 if TYPE_CHECKING:
     from tcod import Console

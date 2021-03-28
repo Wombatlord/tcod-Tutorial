@@ -11,7 +11,7 @@ graphicDt = np.dtype(
     ]
 )
 
-# Tile struct used for statically defined tile data.
+# Tile struct used for statically defined tile display.
 tileDt = np.dtype(
     [
         ("walkable", np.bool),  # True if this tile can be walked over.

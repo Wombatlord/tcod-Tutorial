@@ -3,12 +3,13 @@ import tcod
 from src.engine.engine import Engine
 from src.entities import entityFactories
 from src.map.procgen import generateDungeon
+from src.display import colours
 
 # Screen Constants
 WIDTH = 80
 HEIGHT = 50
 MAP_WIDTH = 80
-MAP_HEIGHT = 45
+MAP_HEIGHT = 43
 
 # Tileset constants.
 SHEET_COLS = 32
@@ -44,6 +45,10 @@ def main() -> None:
     )
 
     engine.updateFOV()
+
+    engine.messageLog.addMessage(
+        "Welcome to the dungeon! We've got fun and games!", colours.welcomeText
+    )
 
     with tcod.context.new_terminal(
             WIDTH,
