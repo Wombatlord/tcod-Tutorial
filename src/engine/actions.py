@@ -4,11 +4,11 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.engine.engine import Engine
-    from src.entities.entity import Entity
+    from src.entities.entity import Entity, Actor
 
 
 class Action:
-    def __init__(self, entity: Entity) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
 
@@ -41,7 +41,7 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -57,17 +57,29 @@ class ActionWithDirection(Action):
         """Return the blocking entity at this actions destination."""
         return self.engine.gameMap.getBlockingEntityAtLocation(*self.destXY)
 
+    @property
+    def targetActor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.gameMap.getActorAtLocation(*self.destXY)
+
     def perform(self) -> None:
         raise NotImplementedError()
 
 
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-        target = self.blockingEntity
+        target = self.targetActor
         if not target:
             return  # No entity to attack.
 
-        print(f"You wollop {target.name}.")
+        damage = self.entity.fighter.power - target.fighter.defence
+        attackDesc = f"{self.entity.name.capitalize()} attacks {target.name}"
+
+        if damage > 0:
+            print(f"{attackDesc} for {damage} HP!")
+            target.fighter.hp -= damage
+        else:
+            print(f"{attackDesc} but does no damage.")
 
 
 class MovementAction(ActionWithDirection):
@@ -88,7 +100,7 @@ class MovementAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
-        if self.blockingEntity:
+        if self.targetActor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
 
         else:
