@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from src.components.baseComponent import BaseComponent
+from src.map.renderOrder import RenderOrder
 
 if TYPE_CHECKING:
     from src.entities.entity import Actor
@@ -36,5 +37,6 @@ class Fighter(BaseComponent):
         self.entity.blocksMovement = False
         self.entity.ai = None
         self.entity.name = f"remains of {self.entity.name}"
+        self.entity.renderOrder = RenderOrder.CORPSE
 
         print(deathMessage)
