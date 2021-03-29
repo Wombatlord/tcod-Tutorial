@@ -1,4 +1,5 @@
 import copy
+import traceback
 import tcod
 from src.engine.engine import Engine
 from src.entities import entityFactories
@@ -63,8 +64,14 @@ def main() -> None:
             engine.eventHandler.onRender(console=rootConsole)
             context.present(rootConsole)
 
-            engine.eventHandler.handleEvents(context)
-
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.eventHandler.handleEvents(event)
+            except Exception:  # Handle exceptions in game.
+                traceback.print_exc()  # Print error to stderr.
+                # Then print the error to the message log.
+                engine.messageLog.addMessage(traceback.format_exc(), colours.error)
 
 if __name__ == "__main__":
     main()

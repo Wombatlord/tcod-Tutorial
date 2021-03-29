@@ -1,14 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
 from src.display.messageLog import MessageLog
-from src.display.renderFunctions import renderBar
 from src.engine.inputHandlers import MainGameEventHandler
 from src.display.renderFunctions import renderBar, renderNamesAtMouseLocation
+from src.engine import exceptions
 
 if TYPE_CHECKING:
     from src.entities.entity import Actor
@@ -28,7 +27,10 @@ class Engine:
     def handleEnemyTurns(self) -> None:
         for entity in set(self.gameMap.actors) - {self.player}:
             if entity.ai:
-                entity.ai.perform()
+                try:
+                    entity.ai.perform()
+                except exceptions.Impossible:
+                    pass  # Ignore impossible action exceptions from AI.
 
     def updateFOV(self):
         """Recompute the visible area based on the players point of view."""
