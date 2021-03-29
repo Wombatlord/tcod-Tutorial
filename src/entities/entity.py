@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from src.components.ai import BaseAI
     from src.components.consumeable import Consumeable
     from src.components.fighter import Fighter
+    from src.components.inventory import Inventory
     from src.map.gameMap import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -80,7 +81,8 @@ class Actor(Entity):
             colour: Tuple[int, int, int] = (255, 255, 255),
             name: str = "<Unnamed>",
             aiCLS: Type[BaseAI],
-            fighter: Fighter
+            fighter: Fighter,
+            inventory: Inventory,
     ):
         super().__init__(
             x=x,
@@ -96,6 +98,9 @@ class Actor(Entity):
 
         self.fighter = fighter
         self.fighter.parent = self
+
+        self.inventory = inventory
+        self.inventory.parent = self
 
     @property
     def isAlive(self) -> bool:
