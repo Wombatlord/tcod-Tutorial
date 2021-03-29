@@ -16,11 +16,11 @@ class Entity:
     A generic object representing players, enemies, items, etc.
     """
 
-    gameMap: GameMap
+    parent: GameMap
 
     def __init__(
             self,
-            gameMap: Optional[GameMap] = None,
+            parent: Optional[GameMap] = None,
             x: int = 0,
             y: int = 0,
             char: str = "?",
@@ -36,17 +36,21 @@ class Entity:
         self.name = name
         self.blocksMovement = blocksMovement
         self.renderOrder = renderOrder
-        if gameMap:
-            # If gameMap isn't provided now then it will be set later.
-            self.gameMap = gameMap
-            gameMap.entities.add(self)
+        if parent:
+            # If parent isn't provided now then it will be set later.
+            self.parent = parent
+            parent.entities.add(self)
+
+    @property
+    def gameMap(self) -> GameMap:
+        return self.parent.gameMap
 
     def spawn(self: T, gameMap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location"""
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        clone.gameMap = gameMap
+        clone.parent = gameMap
         gameMap.entities.add(clone)
         return clone
 
@@ -55,9 +59,9 @@ class Entity:
         self.x = x
         self.y = y
         if gameMap:
-            if hasattr(self, "gameMap"):  # Possibly un-initialized.
+            if hasattr(self, "parent"):  # Possibly un-initialized.
                 self.gameMap.entities.remove(self)
-            self.gameMap = gameMap
+            self.parent = gameMap
             gameMap.entities.add(self)
 
     def move(self, dx: int, dy: int) -> None:
@@ -90,7 +94,7 @@ class Actor(Entity):
         self.ai: Optional[BaseAI] = aiCLS(self)
 
         self.fighter = fighter
-        self.fighter.entity = self
+        self.fighter.parent = self
 
     @property
     def isAlive(self) -> bool:
