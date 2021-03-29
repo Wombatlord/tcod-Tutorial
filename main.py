@@ -22,6 +22,7 @@ MAX_ROOM_SIZE = 10
 MIN_ROOM_SIZE = 6
 MAX_ROOMS = 30
 MAX_MONSTERS_PER_ROOM = 2
+MAX_ITEMS_PER_ROOM = 2
 
 
 def main() -> None:
@@ -42,6 +43,7 @@ def main() -> None:
         mapWidth=MAP_WIDTH,
         mapHeight=MAP_HEIGHT,
         maxMonstersPerRoom=MAX_MONSTERS_PER_ROOM,
+        maxItemsPerRoom=MAX_ITEMS_PER_ROOM,
         engine=engine,
     )
 
@@ -64,6 +66,7 @@ def main() -> None:
             engine.eventHandler.onRender(console=rootConsole)
             context.present(rootConsole)
 
+            # noinspection PyBroadException
             try:
                 for event in tcod.event.wait():
                     context.convert_event(event)
@@ -72,6 +75,7 @@ def main() -> None:
                 traceback.print_exc()  # Print error to stderr.
                 # Then print the error to the message log.
                 engine.messageLog.addMessage(traceback.format_exc(), colours.error)
+
 
 if __name__ == "__main__":
     main()

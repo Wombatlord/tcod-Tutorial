@@ -6,7 +6,7 @@ from src.engine import exceptions
 
 if TYPE_CHECKING:
     from src.engine.engine import Engine
-    from src.entities.entity import Entity, Actor
+    from src.entities.entity import Entity, Actor, Item
 
 
 class Action:
@@ -30,6 +30,26 @@ class Action:
         This method must be overridden by Action Subclasses
         """
         raise NotImplementedError()
+
+
+class ItemAction(Action):
+    def __init__(
+            self, entity: Actor, item: Item, targetXY: Optional[Tuple[int, int]] = None
+    ):
+        super().__init__(entity)
+        self.item = item
+        if not targetXY:
+            targetXY = entity.x, entity.y
+        self.targetXY = targetXY
+
+    @property
+    def targetActor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.gameMap.getActorAtLocation(*self.targetXY)
+
+    def perform(self) -> None:
+        """Invoke the items ability, this action will be given to provide context."""
+        self.item.consumeable.activate(self)
 
 
 class EscapeAction(Action):

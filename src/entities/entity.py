@@ -5,6 +5,7 @@ import copy
 
 if TYPE_CHECKING:
     from src.components.ai import BaseAI
+    from src.components.consumeable import Consumeable
     from src.components.fighter import Fighter
     from src.map.gameMap import GameMap
 
@@ -100,3 +101,28 @@ class Actor(Entity):
     def isAlive(self) -> bool:
         """Returns True as long as thie actor can perform actions."""
         return bool(self.ai)
+
+
+class Item(Entity):
+    def __init__(
+            self,
+            *,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            colour: Tuple[int, int, int] = (255, 255, 255),
+            name: str = "<Unnamed>",
+            consumeable: Consumeable,
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            colour=colour,
+            name=name,
+            blocksMovement=False,
+            renderOrder=RenderOrder.ITEM,
+        )
+
+        self.consumeable = consumeable
+        self.consumeable.parent = self
