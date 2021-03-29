@@ -8,6 +8,7 @@ from tcod.map import compute_fov
 from src.display.messageLog import MessageLog
 from src.display.renderFunctions import renderBar
 from src.engine.inputHandlers import MainGameEventHandler
+from src.display.renderFunctions import renderBar, renderNamesAtMouseLocation
 
 if TYPE_CHECKING:
     from src.entities.entity import Actor
@@ -21,6 +22,7 @@ class Engine:
     def __init__(self, player: Actor):
         self.eventHandler: EventHandler = MainGameEventHandler(self)
         self.messageLog = MessageLog()
+        self.mouseLocation = (0, 0)
         self.player = player
 
     def handleEnemyTurns(self) -> None:
@@ -39,7 +41,7 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.gameMap.explored |= self.gameMap.visible
 
-    def render(self, console: Console, context: Context) -> None:
+    def render(self, console: Console) -> None:
         self.gameMap.render(console)
 
         self.messageLog.render(console=console, x=21, y=45, width=40, height=5)
@@ -51,12 +53,11 @@ class Engine:
             totalWidth=20,
         )
 
+        renderNamesAtMouseLocation(console=console, x=21, y=44, engine=self)
+
         # console.print(
         #     x=1,
         #     y=47,
         #     string=f"HP: {self.player.fighter.hp}/{self.player.fighter.maxHP}",
         #     # string="HP: " + "|" * self.player.fighter.hp,
         # )
-
-        context.present(console)
-        console.clear()

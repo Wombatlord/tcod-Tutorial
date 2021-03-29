@@ -49,16 +49,26 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handleEvents(self) -> None:
-        raise NotImplementedError()
+    def handleEvents(self, context: tcod.context.Context) -> None:
+        for event in tcod.event.wait():
+            context.convert_event(event)
+            self.dispatch(event)
+
+    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
+        if self.engine.gameMap.inBounds(event.tile.x, event.tile.y):
+            self.engine.mouseLocation = event.tile.x, event.tile.y
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
+    def onRender(self, console: tcod.Console) -> None:
+        self.engine.render(console)
+
 
 class MainGameEventHandler(EventHandler):
-    def handleEvents(self) -> None:
+    def handleEvents(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
+            context.convert_event(event)
             action = self.dispatch(event)
 
             if action is None:
@@ -86,11 +96,14 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(player)
 
+        elif key == tcod.event.K_v:
+            self.engine.eventHandler = HistoryViewer(self.engine)
+
         return action
 
 
 class GameOverEventHandler(EventHandler):
-    def handleEvents(self) -> None:
+    def handleEvents(self, context: tcod.context.Context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
@@ -109,3 +122,68 @@ class GameOverEventHandler(EventHandler):
 
         # No valid key was pressed.
         return action
+
+
+CURSOR_Y_KEYS = {
+    tcod.event.K_UP: -1,
+    tcod.event.K_DOWN: 1,
+    tcod.event.K_PAGEUP: -10,
+    tcod.event.K_PAGEDOWN: 10,
+}
+
+
+class HistoryViewer(EventHandler):
+    """Print the message log on a larger window which can be navigated."""
+
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.logLength = len(engine.messageLog.messages)
+        self.cursor = self.logLength - 1
+
+    def onRender(self, console: tcod.Console) -> None:
+        super().onRender(console)  # Draw the main state as the background.
+
+        logConsole = tcod.Console(console.width - 6, console.height - 6)
+
+        # Draw a frame with a custom banner title.
+        logConsole.draw_frame(0, 0, logConsole.width, logConsole.height)
+        logConsole.print_box(
+            0, 0, logConsole.width, 1, "┤Message History├", alignment=tcod.CENTER
+        )
+
+        # Render the message log using the cursor parameter.
+        self.engine.messageLog.renderMessages(
+            logConsole,
+            1,
+            1,
+            logConsole.width - 2,
+            logConsole.height - 2,
+            self.engine.messageLog.messages[: self.cursor + 1],
+        )
+        logConsole.blit(console, 3, 3)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        # Fancy conditional movement ot make it feel right.
+        if event.sym in CURSOR_Y_KEYS:
+            adjust = CURSOR_Y_KEYS[event.sym]
+
+            if adjust < 0 and self.cursor == 0:
+                # Only move from the top to the bottom when you're on the edge.
+                self.cursor = self.logLength - 1
+
+            elif adjust > 0 and self.cursor == self.logLength - 1:
+                # Same with bottom to top movement.
+                self.cursor = 0
+
+            else:
+                # Otherwise move while staying clamped to the bounds of the history.
+                self.cursor = max(0, min(self.cursor + adjust, self.logLength -1))
+
+        elif event.sym == tcod.event.K_HOME:
+            self.cursor = 0  # Move directly to top message.
+
+        elif event.sym == tcod.event.K_END:
+            self.cursor = self.logLength - 1 # Move directly to the last message.
+
+        else:  # Any other key moves back to main game state.
+            self.engine.eventHandler = MainGameEventHandler(self.engine)

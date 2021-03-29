@@ -6,6 +6,19 @@ from src.display import colours
 
 if TYPE_CHECKING:
     from tcod import Console
+    from src.engine.engine import Engine
+    from src.map.gameMap import GameMap
+
+
+def getNamesAtLocation(x: int, y: int, gameMap: GameMap) -> str:
+    if not gameMap.inBounds(x, y) or not gameMap.visible[x, y]:
+        return ""
+
+    names = ", ".join(
+        entity.name for entity in gameMap.entities if entity.x == x and entity.y == y
+    )
+
+    return names.capitalize()
 
 
 def renderBar(
@@ -23,3 +36,15 @@ def renderBar(
     console.print(
         x=1, y=45, string=f"HP: {currentValue}/{maxValue}", fg=colours.barText
     )
+
+
+def renderNamesAtMouseLocation(
+        console: Console, x: int, y: int, engine: Engine
+) -> None:
+    mouseX, mouseY = engine.mouseLocation
+
+    namesAtMouseLocation = getNamesAtLocation(
+        x=mouseX, y=mouseY, gameMap=engine.gameMap
+    )
+
+    console.print(x=x, y=y, string=namesAtMouseLocation)
