@@ -62,7 +62,8 @@ class Entity:
         self.y = y
         if gameMap:
             if hasattr(self, "parent"):  # Possibly un-initialized.
-                self.gameMap.entities.remove(self)
+                if self.parent is self.gameMap:
+                    self.gameMap.entities.remove(self)
             self.parent = gameMap
             gameMap.entities.add(self)
 

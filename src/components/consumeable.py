@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import  Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from src.engine import actions
 from src.display import colours

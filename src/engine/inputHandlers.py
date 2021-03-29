@@ -8,6 +8,7 @@ from src.engine.actions import (
     EscapeAction,
     BumpAction,
     WaitAction,
+    PickupAction,
 )
 
 from src.display import colours
@@ -108,9 +109,13 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction(player)
 
+        elif key == tcod.event.K_g:
+            action = PickupAction(player)
+
         elif key == tcod.event.K_v:
             self.engine.eventHandler = HistoryViewer(self.engine)
 
+        # No valid key was pressed.
         return action
 
 
