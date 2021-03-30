@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 from src.map.renderOrder import RenderOrder
 import copy
 
@@ -18,7 +18,7 @@ class Entity:
     A generic object representing players, enemies, items, etc.
     """
 
-    parent: GameMap
+    parent: Union[GameMap, Inventory]
 
     def __init__(
             self,

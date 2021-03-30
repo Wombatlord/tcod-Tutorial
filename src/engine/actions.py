@@ -34,6 +34,7 @@ class Action:
 
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
+
     def __init__(self, entity: Actor):
         super().__init__(entity)
 
@@ -77,9 +78,9 @@ class ItemAction(Action):
         self.item.consumeable.activate(self)
 
 
-class EscapeAction(Action):
+class DropAction(ItemAction):
     def perform(self) -> None:
-        raise SystemExit()
+        self.entity.inventory.drop(self.item)
 
 
 class WaitAction(Action):

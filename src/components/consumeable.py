@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 from src.engine import actions
 from src.display import colours
+from src.components.inventory import Inventory
 from src.components.baseComponent import BaseComponent
 from src.engine.exceptions import Impossible
 
@@ -25,6 +26,13 @@ class Consumeable(BaseComponent):
         """
         raise NotImplementedError()
 
+    def consume(self) -> None:
+        """Removes the consumed item from its containing inventory."""
+        entity = self.parent
+        inventory = entity.parent
+        if isinstance(inventory, Inventory):
+            inventory.items.remove(entity)
+
 
 class HealingConsumeable(Consumeable):
     def __init__(self, amount: int):
@@ -39,5 +47,6 @@ class HealingConsumeable(Consumeable):
                 f"You consume the {self.parent.name} and recover {amountRecovered} HP!",
                 colours.healthRecovered,
             )
+            self.consume()
         else:
             raise Impossible("You are already at full HP.")
